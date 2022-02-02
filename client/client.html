@@ -5,16 +5,52 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
-    const handleResponse = (response, parseResponse) => {
+    const handleResponse = async (response, parseResponse) => {
       const content = document.querySelector('#content');
       
+      switch(response.status){
+        case 200:
+          content.innerHTML = `<b>success</b>`;
+          break;
+
+        case 201:
+          content.innerHTML = `<b>created</b>`;
+          break;
+
+        case 400:
+          content.innerHTML = `<b>bad request</b>`;
+          break;
+
+        case 404:
+          content.innerHTML = `<b>resource not found</b>`;
+          break;
+
+        default:
+          content.innerHTML = `<b>response code not implemented by client</b>`;
+          break;
+      }
+
+      if(parseResponse) {
+        const resText = await response.text();
+        content.innerHTML += `<p>${resText}</p>`;
+      }
+      else {
+        content.innerHTML += `<p>metadata recieved</p>`
+      }
     };
 
-    const requestUpdate = (userForm) => {
+    const requestUpdate = async (userForm) => {
       const url = userForm.querySelector('#urlField').value;
       const method = userForm.querySelector('#methodSelect').value;
       
+      let response = await fetch(url, {
+        method,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
 
+      handleResponse(response, method === 'get');
     };
 
 
